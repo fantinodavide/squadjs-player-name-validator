@@ -66,9 +66,13 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     async mount() {
         this.server.on('PLAYER_CONNECTED', this.onPlayerConnected);
     }
+    
+    async unmount() {
+		this.server.removeEventListener("PLAYER_CONNECTED", this.onPlayerConnected);
+	}
 
     onPlayerConnected(info) {
-        const { steamID, name: playerName } = info;
+        const { steamID, name: playerName } = info.player;
         let kick = false;
         let rule = null;
         for (let r of this.options.rules) {
@@ -134,7 +138,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
         let regex = rule ? new RegExp(rule.rule, "gi").toString() : null;
         await this.sendDiscordMessage({
             embed: {
-                title: `Player Kicked: ${info.squadName}`,
+                title: `Player Kicked: ${info.player.name}`,
                 color: "ee1111",
                 fields: [
                     {
@@ -157,9 +161,5 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                 timestamp: info.time.toISOString()
             }
         });
-    }
-
-    async unmount() {
-        this.verbose(1, 'Player Name Validator was un-mounted.');
     }
 }
