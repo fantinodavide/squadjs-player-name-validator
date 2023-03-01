@@ -66,13 +66,14 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     async mount() {
         this.server.on('PLAYER_CONNECTED', this.onPlayerConnected);
     }
-    
+
     async unmount() {
-		this.server.removeEventListener("PLAYER_CONNECTED", this.onPlayerConnected);
-	}
+        this.server.removeEventListener("PLAYER_CONNECTED", this.onPlayerConnected);
+    }
 
     onPlayerConnected(info) {
         const { steamID, name: playerName } = info.player;
+        let match = false;
         let kick = false;
         let rule = null;
         for (let r of this.options.rules) {
@@ -84,7 +85,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                     r.rule = r.rule.replace(/^\//, '').replace(/\/$/, '')
 
                     const reg = new RegExp(r.rule, "gi");
-                    kick = playerName.match(reg)?.join(', ')
+                    match = playerName.match(reg)?.join(', ')
 
                     // switch (r.logic) {
                     //     case 'match=allow':
@@ -97,26 +98,27 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                     // this.verbose(1, "Testing rule", info.squadName, reg, disband)
                     break;
                 case 'equals':
-                    kick = playerName.toLowerCase() === r.rule.toLowerCase() ? playerName : false;
+                    match = playerName.toLowerCase() === r.rule.toLowerCase() ? playerName : false;
                     break;
                 case 'includes':
-                    kick = playerName.toLowerCase().includes(r.rule.toLowerCase()) ? r.rule : false;
+                    match = playerName.toLowerCase().includes(r.rule.toLowerCase()) ? r.rule : false;
                     break;
                 case 'startsWith':
-                    kick = playerName.toLowerCase().startsWith(r.rule.toLowerCase()) ? r.rule : false;
+                    match = playerName.toLowerCase().startsWith(r.rule.toLowerCase()) ? r.rule : false;
                     break;
                 case 'endsWith':
-                    kick = playerName.toLowerCase().endsWith(r.rule.toLowerCase()) ? r.rule : false;
+                    match = playerName.toLowerCase().endsWith(r.rule.toLowerCase()) ? r.rule : false;
                     break;
                 default:
             }
 
             switch (r.logic) {
                 case 'match=allow':
-                    if (!kick) kick = playerName;
+                    if (!match) kick = true;
                     break;
                 case 'match=kick':
                 default:
+                    if (match) kick = true;
                     break;
             }
 
@@ -124,13 +126,13 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
 
             if (kick) break
         }
-        this.verbose(1, "Player Connected:", playerName, kick)
+        this.verbose(1, "Player Connected:", playerName, match, kick)
 
         if (kick) {
             const kickMessage = rule.kickMessage || this.options.kickMessage;
             this.server.rcon.execute(`AdminKick ${steamID} ${kickMessage}`);
-            this.warn(info.player.steamID, kickMessage.replace(/\%FORBIDDEN\%/ig, kick))
-            this.discordLog(info, kick, rule)
+            this.warn(info.player.steamID, kickMessage.replace(/\%FORBIDDEN\%/ig, match))
+            this.discordLog(info, match, rule)
         }
     }
 
