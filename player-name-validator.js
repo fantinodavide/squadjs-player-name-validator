@@ -72,7 +72,8 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     }
 
     onPlayerConnected(info) {
-        const { steamID, name: playerName } = info.player;
+        if (!info) return;
+        const { steamID, name: playerName } = info.player || info;
         let match = false;
         let kick = false;
         let rule = null;
