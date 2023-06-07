@@ -34,6 +34,7 @@ Every rule is CASE-INSENSITIVE
     "discordClient": "discord",
     "channelID": "1116600997722661199",
     "kickMessage": "You have been kicked due to non-compliant username.\n\nForbidden: %FORBIDDEN%",
+    "playerCountThreshold": 40,
     "rules": [
         {
             "type": "regex",

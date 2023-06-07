@@ -23,6 +23,11 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                 description: "",
                 default: "You have been kicked due to non-compliant username.\n\nForbidden: %FORBIDDEN%",
             },
+            playerCountThreshold: {
+                required: false,
+                description: "minimum amount of player that allows kicking",
+                default: 40,
+            },
             rules: {
                 required: false,
                 description: "",
@@ -72,6 +77,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     }
 
     onPlayerConnected(info) {
+        if (this.server.a2sPlayerCount < this.options.playerCountThreshold) return;
         if (!info) return;
         const { steamID, name: playerName } = info.player || info;
         let match = false;
