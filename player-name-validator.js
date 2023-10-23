@@ -1,4 +1,5 @@
 import DiscordBasePlugin from './discord-base-plugin.js';
+import axios from 'axios';
 
 export default class PlayerNameValidator extends DiscordBasePlugin {
     static get description() {
@@ -27,6 +28,17 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                 required: false,
                 description: "minimum amount of player that allows kicking",
                 default: 40,
+            },
+            dictionaries: {
+                required: false,
+                description: "",
+                default: [],
+                example: [
+                    {
+                        id: 'example',
+                        url: ''
+                    }
+                ],
             },
             rules: {
                 required: false,
@@ -63,6 +75,10 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
 
         this.onPlayerConnected = this.onPlayerConnected.bind(this)
         this.discordLog = this.discordLog.bind(this)
+        this.getDictionary = this.getDictionary.bind(this);
+        this.loadAllDictionaries = this.loadAllDictionaries.bind(this);
+
+        this.dictionaries = new Map();
 
         this.broadcast = (msg) => { this.server.rcon.broadcast(msg); };
         this.warn = (steamid, msg) => { this.server.rcon.warn(steamid, msg); };
@@ -70,16 +86,42 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
 
     async mount() {
         this.server.on('PLAYER_CONNECTED', this.onPlayerConnected);
+        this.loadAllDictionaries();
     }
 
     async unmount() {
         this.server.removeEventListener("PLAYER_CONNECTED", this.onPlayerConnected);
     }
 
+    async loadAllDictionaries() {
+        for (let dK in this.options.dictionaries) {
+            const d = this.options.dictionaries[ dK ];
+            let error = [];
+            if (!d.id) error.push('Missing ID');
+            if (!d.url) error.push('Missing URL');
+            if (error.length > 0) {
+                this.verbose(1, `Could not pull dictionary ${dK}. Errors: ${error.join('; ')}`)
+                continue;
+            }
+
+            this.getDictionary(d)
+        }
+    }
+
+    async getDictionary(dicObj) {
+        const url = dicObj.url;
+        const id = dicObj.id;
+        this.verbose(1, 'Pulling dictionary from url', url)
+        const res = (await axios.get(url)).data.split('\n').map(n => n.toLowerCase());
+        this.dictionaries.set(id, res)
+        this.verbose(1, `Successfully pulled dictionary ${id}. Content: ${res.slice(0, 5).join('; ')} [...]`)
+    }
+
     onPlayerConnected(info) {
         if (this.server.a2sPlayerCount < this.options.playerCountThreshold) return;
         if (!info) return;
         const { steamID, name: playerName } = info.player || info;
+        if (!playerName) return;
         let match = false;
         let kick = false;
         let rule = null;
@@ -115,6 +157,13 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                     break;
                 case 'endsWith':
                     match = playerName.toLowerCase().endsWith(r.rule.toLowerCase()) ? r.rule : false;
+                    break;
+                case 'dictionary':
+                    if (!r.dictionaryId) {
+                        this.verbose(1, `Rule "${r.description || 'Unknown'}" is missing property "dictionaryId"`)
+                        continue;
+                    }
+                    match = this.dictionaries.get(r.dictionaryId)?.find(n => playerName.toLowerCase().includes(n)) ? r.rule : false;
                     break;
                 default:
             }
