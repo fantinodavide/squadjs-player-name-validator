@@ -118,7 +118,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     }
 
     onPlayerConnected(info) {
-        if (this.server.a2sPlayerCount < this.options.playerCountThreshold) return;
+        // if (this.server.a2sPlayerCount < this.options.playerCountThreshold) return;
         if (!info) return;
         const { steamID, name: playerName } = info.player || info;
         if (!playerName) return;
@@ -126,6 +126,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
         let kick = false;
         let rule = null;
         for (let r of this.options.rules) {
+            if (this.server.a2sPlayerCount < r.playerCountThreshold || this.options.playerCountThreshold) continue;
             r.type = r.type.toLowerCase();
             r.logic = r.logic.toLowerCase();
 
