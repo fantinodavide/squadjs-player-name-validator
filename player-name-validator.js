@@ -126,7 +126,8 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
         let kick = false;
         let rule = null;
         for (let r of this.options.rules) {
-            if (this.server.a2sPlayerCount < r.playerCountThreshold || this.options.playerCountThreshold) continue;
+            // this.verbose(1, `Player connected: "${playerName}" - Players: ${this.server.a2sPlayerCount} - Rule: "${r.description}" - Rule Player Threshold: ${r.playerCountThreshold} - Master Player Threshold: ${this.options.playerCountThreshold}`)
+            if (this.server.a2sPlayerCount < (r.playerCountThreshold || this.options.playerCountThreshold)) continue;
             r.type = r.type.toLowerCase();
             r.logic = r.logic.toLowerCase();
 
