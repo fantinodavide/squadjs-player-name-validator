@@ -10,9 +10,14 @@ Every rule is CASE-INSENSITIVE
     "type": "regex | equals | includes | startsWith | endsWith",
     "logic": "MATCH=KICK | match=allow",
     "rule": "[^a-z\\d=\\$\\[\\]\\!\\.\\s\\-] | WORD",
+    "playerCountThreshold": 20,
     "kickMessage": "(Optional) This warning message will override the default message.\n\nForbidden: %FORBIDDEN%", 
 }
 ```
+### Optional Rule Properties
+- `description`: Not (yet) used, but useful to identify the scope of the rule
+- `playerCountThreshold`: if set in the rule, it will override the "master" set from the plugin configuration
+- `kickMessage`: if set in the rule, it will override the "master" set from the plugin configuration
 
 ### Useful Rules
 ```json
