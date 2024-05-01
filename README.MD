@@ -11,7 +11,7 @@ Every rule is CASE-INSENSITIVE
     "logic": "MATCH=KICK | match=allow",
     "rule": "[^a-z\\d=\\$\\[\\]\\!\\.\\s\\-] | WORD",
     "playerCountThreshold": 20,
-    "kickMessage": "(Optional) This warning message will override the default message.\n\nForbidden: %FORBIDDEN%", 
+    "kickMessage": "(Optional) This warning message will override the default message.\n\nForbidden: %FORBIDDEN%"
 }
 ```
 ### Optional Rule Properties
