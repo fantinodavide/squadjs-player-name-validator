@@ -197,9 +197,9 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
     async discordLog(info, forbidden, rule = null) {
         let regex = rule ? new RegExp(rule.rule, "gi").toString() : null;
         await this.sendDiscordMessage({
-            embed: {
+            embeds: [ {
                 title: `Player Kicked: ${info.player.name}`,
-                color: "ee1111",
+                color: parseInt("ee1111", 16),
                 fields: [
                     {
                         name: 'Username',
@@ -219,7 +219,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
                     (regex ? { name: 'Regex', value: regex.toString(), inline: true } : null)
                 ].filter(e => e),
                 timestamp: info.time.toISOString()
-            }
+            } ]
         });
     }
 }
