@@ -1,4 +1,4 @@
-## SquadNameValidator
+## PlayerNameValidator
 Player Name Validator plugin for SquadJS.
 Automatically kicks players if their name is not compliant to specific rules.
 Every rule is CASE-INSENSITIVE
