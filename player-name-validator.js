@@ -187,7 +187,7 @@ export default class PlayerNameValidator extends DiscordBasePlugin {
         this.verbose(1, "Player Connected:", playerName, match, kick)
 
         if (kick) {
-            const kickMessage = (rule.kickMessage || this.options.kickMessage).replace(/\%FORBIDDEN\%/ig, match);
+            const kickMessage = (rule.kickMessage || this.options.kickMessage).replace(/\%FORBIDDEN\%/ig, match || playerName);
             this.server.rcon.execute(`AdminKick ${steamID} ${kickMessage}`);
             this.warn(info.player.steamID, kickMessage)
             this.discordLog(info, match, rule)
